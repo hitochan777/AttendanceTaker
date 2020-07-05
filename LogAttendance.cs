@@ -16,7 +16,7 @@ namespace AttendanceTaking
         public LogAttendance(AttendanceRepository attendanceRepository)
         {
             _attendanceRepository = attendanceRepository;
-        } 
+        }
 
         [FunctionName("LogAttendance")]
         public async Task<IActionResult> Run(
@@ -25,11 +25,12 @@ namespace AttendanceTaking
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             log.LogInformation($"Raw request: {requestBody}");
-            var attendance = JsonConvert.DeserializeObject<Attendance>(requestBody);
-            if (attendance.OccurredAt == null)
+            var attendance = JsonConvert.DeserializeObject<Attendance>(requestBody, new JsonSerializerSettings
             {
-                attendance.OccurredAt = DateTimeOffset.UtcNow;
-            }
+                NullValueHandling = NullValueHandling.Ignore
+            });
+
+            attendance.OccurredAt = DateTimeOffset.UtcNow;
 
             switch (req.Method)
             {

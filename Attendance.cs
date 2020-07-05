@@ -19,5 +19,10 @@ namespace AttendanceTaking
         {
             get; set;
         }
+
+        public string GetDateString()
+        {
+            return OccurredAt.DateTime.Date.ToShortDateString();
+        }
     }
 }
