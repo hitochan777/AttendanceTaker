@@ -5,6 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 
 namespace AttendanceTaking
 {
@@ -22,9 +23,9 @@ namespace AttendanceTaking
             ILogger log)
         {
             int year, month;
-
-            string yearString = req.Query["year"];
-            string monthString = req.Query["month"];
+            var now = DateTimeOffset.UtcNow.AddHours(9);
+            string yearString = req.Query["year"][0] ?? $"{now.Year}"; 
+            string monthString = req.Query["month"][0] ?? $"{now.Month}";
 
             int.TryParse(yearString, out year);
             int.TryParse(monthString, out month);
