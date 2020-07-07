@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using AttendanceTaking.Infra.CosmosDB;
+﻿using AttendanceTaking.Infra.CosmosDB;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,12 +12,18 @@ namespace AttendanceTaking
         {
             builder.Services.AddSingleton((service) =>
            {
-               var connectionString = ConfigurationManager.ConnectionStrings["CosmosDB"].ConnectionString;
+               var connectionString = GetEnvironmentVariable("ConnectionStrings:CosmosDB");
                var cosmosClientBuilder = new CosmosClientBuilder(connectionString);
                return cosmosClientBuilder.Build();
            });
-           builder.Services.AddLogging();
-           builder.Services.AddSingleton<AttendanceRepository, CosmosDBAttendanceRepository>();
+            builder.Services.AddLogging();
+            builder.Services.AddSingleton<AttendanceRepository, CosmosDBAttendanceRepository>();
         }
+
+        public static string GetEnvironmentVariable(string name)
+        {
+            return System.Environment.GetEnvironmentVariable(name, System.EnvironmentVariableTarget.Process);
+        }
+
     }
 }
