@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -23,9 +24,12 @@ namespace AttendanceTaking
             ILogger log)
         {
             int year, month;
+
             var now = DateTimeOffset.UtcNow.AddHours(9);
-            string yearString = req.Query["year"][0] ?? $"{now.Year}"; 
-            string monthString = req.Query["month"][0] ?? $"{now.Month}";
+            // If there are multiple matching querystrings, take the first occurrence.
+            string yearString = req.Query["year"].Count > 0 ? req.Query["year"].First() : $"{now.Year}"; 
+            string monthString = req.Query["month"].Count > 0 ? req.Query["month"].First() : $"{now.Month}";
+
 
             int.TryParse(yearString, out year);
             int.TryParse(monthString, out month);
