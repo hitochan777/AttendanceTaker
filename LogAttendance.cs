@@ -56,7 +56,7 @@ namespace AttendanceTaking
                     return new StatusCodeResult(StatusCodes.Status405MethodNotAllowed);
             }
 
-            return new OkObjectResult("hello");
+            return new StatusCodeResult(StatusCodes.Status200OK);
         }
     }
 }
