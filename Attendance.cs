@@ -8,6 +8,9 @@ namespace AttendanceTaking
     [JsonObject(MemberSerialization.OptIn)]
     public class Attendance
     {
+        [JsonProperty("id")]
+        public string Id { get;  set; }
+
         [JsonProperty("type")]
         public AttendanceType Type
         {
