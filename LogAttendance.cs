@@ -23,6 +23,13 @@ namespace AttendanceTaking
             [HttpTrigger(AuthorizationLevel.Function, "post", "put", Route = null)] HttpRequest req,
             ILogger log)
         {
+            var authorizer = new Authorizer(log);
+            var user = authorizer.GetUser(req);
+            if (!user.IsAuthenticated)
+            {
+                return new StatusCodeResult(StatusCodes.Status401Unauthorized);
+            }
+
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             log.LogInformation($"Raw request: {requestBody}");
             var attendance = JsonConvert.DeserializeObject<Attendance>(requestBody, new JsonSerializerSettings

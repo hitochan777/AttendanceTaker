@@ -23,6 +23,13 @@ namespace AttendanceTaking
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
+            var authorizer = new Authorizer(log);
+            var user = authorizer.GetUser(req);
+            if (!user.IsAuthenticated)
+            {
+                return new StatusCodeResult(StatusCodes.Status401Unauthorized);
+            }
+
             int year, month;
 
             var now = DateTimeOffset.UtcNow.AddHours(9);
