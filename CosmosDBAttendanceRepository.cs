@@ -21,12 +21,12 @@ namespace AttendanceTaking.Infra.CosmosDB
             container = cosmosClient.GetContainer(DatabaseName, AttendanceContainerName);
         }
 
-        public async Task<Attendance[]> FindAll(int year, int month)
+        public async Task<Attendance[]> FindAll(string userId, int year, int month)
         {
             var result = new List<Attendance>();
             var start = new DateTimeOffset(new DateTime(year, month, 1), new TimeSpan(9, 0, 0));
             var end = new DateTimeOffset(new DateTime(year, month, 1), new TimeSpan(9, 0, 0)).AddMonths(1);
-            var iterator = container.GetItemLinqQueryable<Attendance>().Where(attendance => attendance.OccurredAt >= start && attendance.OccurredAt < end).ToFeedIterator();
+            var iterator = container.GetItemLinqQueryable<Attendance>().Where(attendance => attendance.UserId == userId && attendance.OccurredAt >= start && attendance.OccurredAt < end).ToFeedIterator();
             foreach (var item in await iterator.ReadNextAsync())
             {
                 result.Add(item);
@@ -35,19 +35,19 @@ namespace AttendanceTaking.Infra.CosmosDB
 
         }
 
-        public async Task<bool> Create(Attendance attendance)
+        public async Task<bool> Create(string userId, Attendance attendance)
         {
-            return await Update(attendance);
+            return await Update(userId, attendance);
         }
 
-        public async Task<bool> Update(Attendance attendance)
+        public async Task<bool> Update(string userId, Attendance attendance)
         {
             try
             {
                 await container.UpsertItemAsync(new
                 {
-                    id = $"hitochan-{attendance.Type}-{attendance.OccurredAt}",
-                    userId = "hitochan",
+                    id = $"{userId}-{attendance.OccurredAt.ToUnixTimeSeconds()}",
+                    userId,
                     occurredAt = attendance.OccurredAt,
                     type = attendance.Type,
                 });
@@ -59,7 +59,7 @@ namespace AttendanceTaking.Infra.CosmosDB
             }
         }
 
-        public Task<bool> Delete(Attendance attendance)
+        public Task<bool> Delete(string userId, Attendance attendance)
         {
             throw new NotImplementedException();
         }

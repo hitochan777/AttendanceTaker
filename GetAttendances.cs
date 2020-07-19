@@ -20,14 +20,12 @@ namespace AttendanceTaking
 
         [FunctionName("GetAttendances")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
-            ILogger log)
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "/{userId}}")] HttpRequest req,
+            ILogger log, string userId)
         {
-            var authorizer = new Authorizer(log);
-            var user = authorizer.GetUser(req);
-            if (!user.IsAuthenticated)
+            if (String.IsNullOrEmpty(userId))
             {
-                return new StatusCodeResult(StatusCodes.Status401Unauthorized);
+                return new BadRequestResult();
             }
 
             int year, month;
@@ -41,7 +39,7 @@ namespace AttendanceTaking
             int.TryParse(yearString, out year);
             int.TryParse(monthString, out month);
 
-            var attendances = await _attendanceRepository.FindAll(year, month);
+            var attendances = await _attendanceRepository.FindAll(userId, year, month);
             string responseMessage = JsonConvert.SerializeObject(attendances);
             return new OkObjectResult(responseMessage);
         }

@@ -20,14 +20,12 @@ namespace AttendanceTaking
 
         [FunctionName("LogAttendance")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", "put", Route = null)] HttpRequest req,
-            ILogger log)
-        {
-            var authorizer = new Authorizer(log);
-            var user = authorizer.GetUser(req);
-            if (!user.IsAuthenticated)
+            [HttpTrigger(AuthorizationLevel.Function, "post", "put", Route = "/{userId}")] HttpRequest req,
+            ILogger log, string userId)
+        { 
+            if (String.IsNullOrEmpty(userId))
             {
-                return new StatusCodeResult(StatusCodes.Status401Unauthorized);
+                return new BadRequestResult();
             }
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
@@ -43,7 +41,7 @@ namespace AttendanceTaking
             {
                 case "POST":
                     {
-                        var ok = await _attendanceRepository.Create(attendance);
+                        var ok = await _attendanceRepository.Create(userId, attendance);
                         if (!ok)
                         {
                             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
@@ -52,7 +50,7 @@ namespace AttendanceTaking
                     }
                 case "PUT":
                     {
-                        var ok = await _attendanceRepository.Update(attendance);
+                        var ok = await _attendanceRepository.Update(userId, attendance);
                         if (!ok)
                         {
                             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
