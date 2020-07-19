@@ -23,6 +23,12 @@ namespace AttendanceTaking
             get; set;
         }
 
+        [JsonProperty("userId")]
+        public string UserId
+        {
+            get; set;
+        }
+
         public string GetDateString()
         {
             return OccurredAt.DateTime.Date.ToShortDateString();

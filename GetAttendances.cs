@@ -20,9 +20,14 @@ namespace AttendanceTaking
 
         [FunctionName("GetAttendances")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
-            ILogger log)
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "{userId}/attendances")] HttpRequest req,
+            ILogger log, string userId)
         {
+            if (String.IsNullOrEmpty(userId))
+            {
+                return new BadRequestResult();
+            }
+
             int year, month;
 
             var now = DateTimeOffset.UtcNow.AddHours(9);
@@ -34,7 +39,7 @@ namespace AttendanceTaking
             int.TryParse(yearString, out year);
             int.TryParse(monthString, out month);
 
-            var attendances = await _attendanceRepository.FindAll(year, month);
+            var attendances = await _attendanceRepository.FindAll(userId, year, month);
             string responseMessage = JsonConvert.SerializeObject(attendances);
             return new OkObjectResult(responseMessage);
         }
