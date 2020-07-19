@@ -20,7 +20,7 @@ namespace AttendanceTaking
 
         [FunctionName("GetAttendances")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "{userId}")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "{userId}/attendances")] HttpRequest req,
             ILogger log, string userId)
         {
             if (String.IsNullOrEmpty(userId))
