@@ -46,7 +46,7 @@ namespace AttendanceTaking.Infra.CosmosDB
             {
                 await container.UpsertItemAsync(new
                 {
-                    id = $"{userId}-{attendance.OccurredAt.ToUnixTimeSeconds()}",
+                    id = generateId(),
                     userId,
                     occurredAt = attendance.OccurredAt,
                     type = attendance.Type,
@@ -59,9 +59,22 @@ namespace AttendanceTaking.Infra.CosmosDB
             }
         }
 
-        public Task<bool> Delete(string userId, Attendance attendance)
+        public async Task<bool> Delete(string userId, string attendanceId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await container.DeleteItemAsync<Attendance>(attendanceId, new PartitionKey(userId));
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private string generateId()
+        {
+            return Guid.NewGuid().ToString();
         }
     }
 }
