@@ -22,7 +22,7 @@ namespace AttendanceTaking
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", "put", Route = "{userId}/attendance")] HttpRequest req,
             ILogger log, string userId)
-        { 
+        {
             if (String.IsNullOrEmpty(userId))
             {
                 return new BadRequestResult();
@@ -34,6 +34,11 @@ namespace AttendanceTaking
             {
                 NullValueHandling = NullValueHandling.Ignore
             });
+
+            if (attendance == null)
+            {
+	            return new BadRequestResult();
+            }
 
             attendance.OccurredAt = DateTimeOffset.UtcNow;
 
