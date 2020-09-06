@@ -10,63 +10,67 @@ using Newtonsoft.Json;
 
 namespace AttendanceTaking
 {
-    public class LogAttendance
-    {
-        private readonly AttendanceRepository _attendanceRepository;
-        public LogAttendance(AttendanceRepository attendanceRepository)
-        {
-            _attendanceRepository = attendanceRepository;
-        }
+	public class LogAttendance
+	{
+		private readonly AttendanceRepository _attendanceRepository;
 
-        [FunctionName("LogAttendance")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", "put", Route = "{userId}/attendance")] HttpRequest req,
-            ILogger log, string userId)
-        {
-            if (String.IsNullOrEmpty(userId))
-            {
-                return new BadRequestResult();
-            }
+		public LogAttendance(AttendanceRepository attendanceRepository)
+		{
+			_attendanceRepository = attendanceRepository;
+		}
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            log.LogInformation($"Raw request: {requestBody}");
-            var attendance = JsonConvert.DeserializeObject<Attendance>(requestBody, new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore
-            });
+		[FunctionName("LogAttendance")]
+		public async Task<IActionResult> Run(
+			[HttpTrigger(AuthorizationLevel.Function, "post", "put", Route = "{userId}/attendance")]
+			HttpRequest req,
+			ILogger log, string userId)
+		{
+			if (String.IsNullOrEmpty(userId))
+			{
+				return new BadRequestResult();
+			}
 
-            if (attendance == null)
-            {
-	            return new BadRequestResult();
-            }
+			string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+			log.LogInformation($"Raw request: {requestBody}");
+			var attendance = JsonConvert.DeserializeObject<Attendance>(requestBody);
 
-            attendance.OccurredAt = DateTimeOffset.UtcNow;
+			if (attendance == null)
+			{
+				return new BadRequestResult();
+			}
 
-            switch (req.Method)
-            {
-                case "POST":
-                    {
-                        var ok = await _attendanceRepository.Create(userId, attendance);
-                        if (!ok)
-                        {
-                            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                        }
-                        break;
-                    }
-                case "PUT":
-                    {
-                        var ok = await _attendanceRepository.Update(userId, attendance);
-                        if (!ok)
-                        {
-                            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                        }
-                        break;
-                    }
-                default:
-                    return new StatusCodeResult(StatusCodes.Status405MethodNotAllowed);
-            }
+			if (attendance?.OccurredAt == DateTimeOffset.MinValue)
+			{
+				attendance.OccurredAt = DateTimeOffset.UtcNow;
+			}
 
-            return new StatusCodeResult(StatusCodes.Status200OK);
-        }
-    }
+			switch (req.Method)
+			{
+				case "POST":
+				{
+					var ok = await _attendanceRepository.Create(userId, attendance);
+					if (!ok)
+					{
+						return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+					}
+
+					break;
+				}
+				case "PUT":
+				{
+					var ok = await _attendanceRepository.Update(userId, attendance);
+					if (!ok)
+					{
+						return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+					}
+
+					break;
+				}
+				default:
+					return new StatusCodeResult(StatusCodes.Status405MethodNotAllowed);
+			}
+
+			return new StatusCodeResult(StatusCodes.Status200OK);
+		}
+	}
 }

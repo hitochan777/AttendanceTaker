@@ -1,37 +1,26 @@
 ﻿using System;
 using System.ComponentModel;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 
 namespace AttendanceTaking
 {
-    [JsonObject(MemberSerialization.OptIn)]
-    public class Attendance
-    {
-        [JsonProperty("id")]
-        public string Id { get;  set; }
+	[JsonObject(MemberSerialization.OptIn)]
+	public class Attendance
+	{
+		[JsonProperty("id")] public string Id { get; set; }
 
-        [JsonProperty("type")]
-        public AttendanceType Type
-        {
-            get; set;
-        }
-        
-        [JsonProperty("occurredAt")]
-        public DateTimeOffset OccurredAt
-        {
-            get; set;
-        }
+		[JsonProperty("type")] public AttendanceType Type { get; set; }
 
-        [JsonProperty("userId")]
-        public string UserId
-        {
-            get; set;
-        }
+		[JsonProperty("occurredAt")]
+		public DateTimeOffset OccurredAt { get; set; }
 
-        public string GetDateString()
-        {
-            return OccurredAt.DateTime.Date.ToShortDateString();
-        }
-    }
+		[JsonProperty("userId")] public string UserId { get; set; }
+
+		public string GetDateString()
+		{
+			return OccurredAt.DateTime.Date.ToShortDateString();
+		}
+	}
 }
