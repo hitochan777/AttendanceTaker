@@ -11,8 +11,8 @@ namespace AttendanceTaking
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.Services.AddSingleton((service) =>
-           {
-               var connectionString = GetEnvironmentVariable("ConnectionStrings:CosmosDB");
+            {
+	            var connectionString = GetEnvironmentVariable("ConnectionStrings:CosmosDB");
                var cosmosClientBuilder = new CosmosClientBuilder(connectionString);
                return cosmosClientBuilder.Build();
            });
