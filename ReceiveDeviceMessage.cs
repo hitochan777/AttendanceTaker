@@ -13,7 +13,7 @@ namespace AttendanceTaker
         private static HttpClient client = new HttpClient();
 
         [FunctionName("ReceiveDeviceMessage")]
-        public static void Run([IoTHubTrigger("messages/events", Connection = "")]EventData message, ILogger log)
+        public static void Run([IoTHubTrigger("messages/events", Connection = "IoTHubTriggerConnection")]EventData message, ILogger log)
         {
             log.LogInformation($"C# IoT Hub trigger function processed a message: {Encoding.UTF8.GetString(message.Body.Array)}");
         }
