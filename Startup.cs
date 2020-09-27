@@ -1,5 +1,4 @@
-using System;
-using System.Net.Http;
+using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,15 +10,19 @@ namespace AttendanceTaker
 	{
 		public override void Configure(IFunctionsHostBuilder builder)
 		{
-			builder.Services.AddSingleton<HttpClient>(sp => new HttpClient
+			builder.Services.AddSingleton((service) =>
 			{
-				BaseAddress = new Uri("BASE_URL"),
-				DefaultRequestHeaders =
-					{
-						{"x-functions-key", "FUNCTIONS_KEY_HERE"}
-					}
-			}
-			);
+				var connectionString = GetEnvironmentVariable("ConnectionStrings:CosmosDB");
+				var cosmosClientBuilder = new CosmosClientBuilder(connectionString);
+				return cosmosClientBuilder.Build();
+			});
+			builder.Services.AddLogging();
+			builder.Services.AddSingleton<AttendanceRepository, CosmosDBAttendanceRepository>();
+		}
+
+		private static string GetEnvironmentVariable(string name)
+		{
+			return System.Environment.GetEnvironmentVariable(name, System.EnvironmentVariableTarget.Process);
 		}
 	}
 }
