@@ -1,3 +1,3 @@
-# AttendanceTaker
+# Gateway for attendance taker
 
-API for taking attendance
+This repository serves as a gateway between wifi probe attendance detector and API server.
